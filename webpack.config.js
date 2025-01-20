@@ -1,6 +1,7 @@
 const glob = require('glob');
 const path = require('path'); //get absolute paths
 const MiniCssExtractPlugin = require('mini-css-extract-plugin'); //extract css from js imports
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const WebpackShellPluginNext = require('webpack-shell-plugin-next'); //execute shell commands
 const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'); //remove unwanted js created while compiling scss
 const mode = process.env.NODE_ENV === 'development' ? 'development' : 'production';
@@ -35,6 +36,7 @@ module.exports = {
       breakpoints: path.resolve(__dirname, 'scss/components/breakpoints.scss'),
       JsComponents: path.resolve(__dirname, 'js/components'),
       SvelteComponents: path.resolve(__dirname, 'js/components/svelte'),
+      ReactComponents: path.resolve(__dirname, 'js/components/react'),
       svelte: path.resolve('node_modules', 'svelte/src/runtime')
     },
     extensions: ['.mjs', '.js', '.svelte'],
@@ -101,7 +103,7 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: './[name].css'
     })
-  ],
+  ]
 
 };
 
@@ -114,7 +116,7 @@ if (mode === 'development') {
         scripts: ['echo Webpack build in progress...🛠']
       },
       onBuildEnd: {
-        scripts: ['echo Build Complete 📦',`shopify theme dev --poll --theme-editor-sync -s ${storeUrl} -t ${themeId}`],
+        scripts: ['echo Build Complete 📦', `shopify theme dev --theme-editor-sync -s ${storeUrl}`],
         parallel: true //this is required to make webpack watch run in background.
       }
     })
@@ -128,7 +130,7 @@ if (mode === 'development') {
         Vendors: {  //create a seperate chunk for vendor
           test: /[\\/]node_modules[\\/]/, //required both / & \ to support cross platform between unix and windows
           name: 'vendors',//only create chunk for dependencies
-          chunks :'all', //create chunk for all sync , async and cjs modules
+          chunks: 'all', //create chunk for all sync , async and cjs modules
           type: /javascript/,
           enforce: true // ignores minSize: 2000, minChunks: 1,priority: 0,
         },
@@ -141,15 +143,19 @@ if (mode === 'development') {
           type: /javascript/
         }
       },
-    }
+    },
+    minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin(),
+    ]
   }
 }
 
-if(mode == "production") {
+if (mode == "production") {
   module.exports.optimization = {
     usedExports: true, //check for ununsed exports for treeshaking within file
     splitChunks: {
-      chunks :'all',//create chunk for all sync , async and cjs modules
+      chunks: 'all',//create chunk for all sync , async and cjs modules
       usedExports: true, //check for ununsed exports for treeshaking within chunk
       cacheGroups: {
         default: false, //override default
@@ -168,6 +174,9 @@ if(mode == "production") {
           type: /javascript/
         }
       },
-    }
+    },
+    minimizer: [
+      new CssMinimizerPlugin(),
+    ]
   }
 }
