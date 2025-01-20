@@ -3,5 +3,4 @@
 sampleenv
 package.json
 package-lock.json
-./scss
 ./js
