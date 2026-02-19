@@ -21,3 +21,12 @@
 
 ## Note: 
 Svelte is integrated by default, check sample.svelte and hello.js for the reference. 
+
+
+## Add these files in theme.liquid
+<script src="{{'vendors.js' | asset_url }}" defer></script>  
+<script src="{{'global.js' | asset_url }}" defer></script>  
+<script src="{{'shared.js' | asset_url }}" async></script> 
+<script src="{{'sections.js' | asset_url }}" defer></script>
+
+{{ 'common-imports.css' | asset_url | stylesheet_tag: preload: true }}
